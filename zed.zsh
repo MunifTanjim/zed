@@ -73,14 +73,6 @@ function :zed_plugin_registry() {
 }
 # ]]]
 
-function :zed_compile() {
-  local plugin_dir="$ZED[DATA_DIR]/plugins/$ZED_CTX[name]"
-
-  pushd "$plugin_dir" > /dev/null
-  zcompile -U "$ZED_CTX[pick]"
-  popd > /dev/null
-}
-
 function :zed_install() {
   local plugin_dir="$ZED[DATA_DIR]/plugins/$ZED_CTX[name]"
 
@@ -170,24 +162,9 @@ function :zed_install_or_update() {
     return 1
   fi
 
-  :zed_compile
-}
-
-function :zed_source() {
-  local plugin_dir="$ZED[DATA_DIR]/plugins/$ZED_CTX[name]"
-
-  fpath+="$plugin_dir"
-
-  if [[ -d "$plugin_dir/functions" ]]; then
-    fpath+="$plugin_dir/functions"
-  fi
-
-  __zed_compdef_intercept_on
   pushd "$plugin_dir" > /dev/null
-  source "$ZED_CTX[pick]"
-  eval "$ZED_CTX[onload]"
+  zcompile -U "$ZED_CTX[pick]"
   popd > /dev/null
-  __zed_compdef_intercept_off
 }
 
 function _zed_list() {
@@ -254,7 +231,18 @@ function _zed_load() {
     return 1
   fi
 
-  :zed_source
+  fpath+="$plugin_dir"
+
+  if [[ -d "$plugin_dir/functions" ]]; then
+    fpath+="$plugin_dir/functions"
+  fi
+
+  __zed_compdef_intercept_on
+  pushd "$plugin_dir" > /dev/null
+  source "$ZED_CTX[pick]"
+  eval "$ZED_CTX[onload]"
+  popd > /dev/null
+  __zed_compdef_intercept_off
 
   ZED[plugin-$ZED_CTX[name]]=true
 }
