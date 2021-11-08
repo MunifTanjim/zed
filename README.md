@@ -2,6 +2,53 @@
 
 ZSH Plugin Manager. Yes, yet another one.
 
+## Installation
+
+### Manual Installation
+
+```sh
+mkdir -p ~/.local/share/zsh/.zed
+git clone https://github.com/MunifTanjim/zed.git ~/.local/share/zsh/.zed/self
+```
+
+## Usage
+
+**Example**:
+
+```sh
+declare -A ZED
+ZED[CACHE_DIR]="${HOME}/.cache/zsh/.zed"
+ZED[DATA_DIR]="${HOME}/.local/share/zsh/.zed"
+
+source "${ZED[DATA_DIR]}/self/zed.zsh"
+
+zed init
+
+zed load github.com/zsh-users/zsh-completions
+
+zed load github.com/trapd00r/LS_COLORS \
+  onpull:'dircolors -b LS_COLORS > LS_COLORS.plugin.zsh' \
+  onload:'zstyle ":completion:*" list-colors "${(s.:.)LS_COLORS}"'
+zed load github.com/zpm-zsh/colorize
+zed load github.com/zpm-zsh/ls
+
+if (( ${+commands[zoxide]} )); then
+  zed load github.com/MunifTanjim/null name:'zoxide' \
+    onpull:'zoxide init --no-aliases zsh > zoxide.plugin.zsh && echo "z() { __zoxide_z \$@ }" >> zoxide.plugin.zsh'
+fi
+
+zed load github.com/momo-lab/auto-expand-alias
+zed load github.com/zsh-users/zsh-autosuggestions
+zed load github.com/zsh-users/zsh-syntax-highlighting
+
+if (( ${+commands[starship]} )); then
+  zed load github.com/MunifTanjim/null name:'starship' \
+    onpull:'starship init zsh --print-full-init > starship.plugin.zsh'
+fi
+
+zed done
+```
+
 ## Alternatives
 
 - [zsh-users/antigen](https://github.com/zsh-users/antigen)
