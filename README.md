@@ -49,6 +49,28 @@ fi
 zed done
 ```
 
+### Commands
+
+#### `zed init`
+
+Initialize
+
+#### `zed load`
+
+Load plugin
+
+#### `zed done`
+
+Finish
+
+#### `zed list`
+
+List plugins
+
+#### `zed pull`
+
+Pull latest changes for plugins
+
 ## Alternatives
 
 - [zsh-users/antigen](https://github.com/zsh-users/antigen)
