@@ -53,25 +53,13 @@ function __zed_compdef_replay() {
 }
 # ]]]
 
-# zed cache [[[
-function :zed_plugin_registry_cache() {
+# registry [[[
+function :zed_plugin_registry() {
   local action="$1"; shift
 
   local key val
 
-  local cache_file="$ZED[CACHE_DIR]/_zed_plugin_registry.zsh"
-
   case $action in
-    init)
-      if [[ ! -f "$cache_file" ]]; then
-        mkdir -p "$ZED[CACHE_DIR]"
-        :zed_plugin_registry_cache dump
-      fi
-      source "$cache_file"
-      ;;
-    dump)
-      typeset -p _zed_plugin_registry > "$cache_file"
-      ;;
     get)
       key="$1"
       ZED_CTX=("${(@Q)${(@z)_zed_plugin_registry[$key]}}")
@@ -217,7 +205,7 @@ function _zed_pull() {
 
   local name
   for name in ${names[@]}; do
-    :zed_plugin_registry_cache get "$name"
+    :zed_plugin_registry get "$name"
 
     :zed_install_or_update
   done
@@ -252,7 +240,7 @@ function _zed_load() {
     fi
   fi
 
-  :zed_plugin_registry_cache set
+  :zed_plugin_registry set
 
   local plugin_dir="$ZED[DATA_DIR]/plugins/$ZED_CTX[name]"
 
@@ -274,8 +262,6 @@ function _zed_load() {
 function _zed_done() {
   __zed_compinit
   __zed_compdef_replay
-
-  :zed_plugin_registry_cache dump
 }
 
 function _zed_init() {
@@ -291,7 +277,9 @@ function _zed_init() {
     ZED[DATA_DIR]="${XDG_DATA_HOME:-$HOME/.local/share}/zsh/.zed"
   fi
 
-  :zed_plugin_registry_cache init
+  if [[ ! -d "$ZED[CACHE_DIR]" ]]; then
+    mkdir -p "$ZED[CACHE_DIR]"
+  fi
 
   autoload -Uz compinit
 }
