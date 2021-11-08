@@ -12,13 +12,13 @@ function __zed_log_info() {
 
 # completion [[[
 function __zed_compinit() {
-  for zcompdump in $ZED[CACHE_HOME]/.zcompdump(N.mh+24); do
+  for zcompdump in $ZED[CACHE_DIR]/.zcompdump(N.mh+24); do
     compinit -d "${zcompdump}"
     if [[ ! -s "${zcompdump}.zwc" ]] || [[ "${zcompdump}" -nt "${zcompdump}.zwc" ]]; then
       zcompile "${zcompdump}"
     fi
   done
-  compinit -C -d "$ZED[CACHE_HOME]/.zcompdump"
+  compinit -C -d "$ZED[CACHE_DIR]/.zcompdump"
 }
 
 function __zed_compdef() {
@@ -59,11 +59,12 @@ function :zed_plugin_registry_cache() {
 
   local key val
 
-  local cache_file="$ZED[CACHE_HOME]/_zed_plugin_registry.zsh"
+  local cache_file="$ZED[CACHE_DIR]/_zed_plugin_registry.zsh"
 
   case $action in
     init)
       if [[ ! -f "$cache_file" ]]; then
+        mkdir -p "$ZED[CACHE_DIR]"
         :zed_plugin_registry_cache dump
       fi
       source "$cache_file"
@@ -85,7 +86,7 @@ function :zed_plugin_registry_cache() {
 # ]]]
 
 function :zed_compile() {
-  local plugin_dir="$ZED[PLUGIN_HOME]/$ZED_CTX[name]"
+  local plugin_dir="$ZED[DATA_DIR]/plugins/$ZED_CTX[name]"
 
   pushd "$plugin_dir" > /dev/null
   zcompile -U "$ZED_CTX[pick]"
@@ -93,7 +94,7 @@ function :zed_compile() {
 }
 
 function :zed_install() {
-  local plugin_dir="$ZED[PLUGIN_HOME]/$ZED_CTX[name]"
+  local plugin_dir="$ZED[DATA_DIR]/plugins/$ZED_CTX[name]"
 
   if [[ ! -d "${plugin_dir:h}" ]]; then
     mkdir -p "${plugin_dir:h}"
@@ -132,7 +133,7 @@ function :zed_install() {
 }
 
 function :zed_update() {
-  local plugin_dir="$ZED[PLUGIN_HOME]/$ZED_CTX[name]"
+  local plugin_dir="$ZED[DATA_DIR]/plugins/$ZED_CTX[name]"
 
   local name="$ZED_CTX[name]"
 
@@ -161,7 +162,7 @@ function :zed_update() {
 }
 
 function :zed_install_or_update() {
-  local plugin_dir="$ZED[PLUGIN_HOME]/$ZED_CTX[name]"
+  local plugin_dir="$ZED[DATA_DIR]/plugins/$ZED_CTX[name]"
 
   if [[ -d "$plugin_dir" ]]; then
     :zed_update
@@ -185,7 +186,7 @@ function :zed_install_or_update() {
 }
 
 function :zed_source() {
-  local plugin_dir="$ZED[PLUGIN_HOME]/$ZED_CTX[name]"
+  local plugin_dir="$ZED[DATA_DIR]/plugins/$ZED_CTX[name]"
 
   fpath+="$plugin_dir"
 
@@ -253,7 +254,7 @@ function _zed_load() {
 
   :zed_plugin_registry_cache set
 
-  local plugin_dir="$ZED[PLUGIN_HOME]/$ZED_CTX[name]"
+  local plugin_dir="$ZED[DATA_DIR]/plugins/$ZED_CTX[name]"
 
   if [[ ! -f "$plugin_dir/$ZED_CTX[pick]" ]]; then
     :zed_install_or_update
@@ -282,12 +283,12 @@ function _zed_init() {
   declare -gA _zed_plugin_registry
   declare -ga ZED_COMPDEF_REPLAY
 
-  if [[ -z "$ZED[CACHE_HOME]" ]]; then
-    ZED[CACHE_HOME]="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/.zed"
+  if [[ -z "$ZED[CACHE_DIR]" ]]; then
+    ZED[CACHE_DIR]="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/.zed"
   fi
 
-  if [[ -z "$ZED[PLUGIN_HOME]" ]]; then
-    ZED[PLUGIN_HOME]="${XDG_DATA_HOME:-$HOME/.local/share}/zsh/.zed/plugins"
+  if [[ -z "$ZED[DATA_DIR]" ]]; then
+    ZED[DATA_DIR]="${XDG_DATA_HOME:-$HOME/.local/share}/zsh/.zed"
   fi
 
   :zed_plugin_registry_cache init
