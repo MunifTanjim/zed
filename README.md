@@ -13,7 +13,9 @@ git clone https://github.com/MunifTanjim/zed.git ~/.local/share/zsh/.zed/self
 
 ## Usage
 
-**Example**:
+You should load the plugins you want after running `zed init` and before running `zed done`.
+
+**Initialization**:
 
 ```sh
 declare -A ZED
@@ -23,29 +25,55 @@ ZED[DATA_DIR]="${HOME}/.local/share/zsh/.zed"
 source "${ZED[DATA_DIR]}/self/zed.zsh"
 
 zed init
+```
 
-zed load github.com/zsh-users/zsh-completions
+**Normal Plugin**:
+
+```sh
+zed load github.com/momo-lab/auto-expand-alias
 
 zed load github.com/trapd00r/LS_COLORS \
-  onpull:'dircolors -b LS_COLORS > LS_COLORS.plugin.zsh' \
+  pick:'lscolors.sh' \
+  onpull:'dircolors -b LS_COLORS > lscolors.sh' \
   onload:'zstyle ":completion:*" list-colors "${(s.:.)LS_COLORS}"'
+
 zed load github.com/zpm-zsh/colorize
 zed load github.com/zpm-zsh/ls
 
-if (( ${+commands[zoxide]} )); then
-  zed load github.com/MunifTanjim/null name:'zoxide' \
-    onpull:'zoxide init --no-aliases zsh > zoxide.plugin.zsh && echo "z() { __zoxide_z \$@ }" >> zoxide.plugin.zsh'
-fi
-
-zed load github.com/momo-lab/auto-expand-alias
+zed load github.com/zsh-users/zsh-completions
 zed load github.com/zsh-users/zsh-autosuggestions
 zed load github.com/zsh-users/zsh-syntax-highlighting
+```
+
+**Generated Script**:
+
+```sh
+if (( ${+commands[zoxide]} )); then
+  zed load github.com/MunifTanjim/null name:'zoxide' \
+    onpull:'zoxide init zsh > zoxide.plugin.zsh'
+fi
 
 if (( ${+commands[starship]} )); then
   zed load github.com/MunifTanjim/null name:'starship' \
     onpull:'starship init zsh --print-full-init > starship.plugin.zsh'
 fi
+```
 
+**Local Script**:
+
+```
+zed load "${HOME}/.helpers.sh"
+```
+
+**[Oh My Zsh](https://github.com/ohmyzsh/ohmyzsh) Plugin**:
+
+```sh
+zed load github.com/ohmyzsh/ohmyzsh dir:'plugins/macos'
+```
+
+**Finalization**:
+
+```sh
 zed done
 ```
 
@@ -61,13 +89,13 @@ Load plugin
 
 #### `zed done`
 
-Finish
+Finalize
 
 #### `zed list`
 
-List plugins
+List plugin-ids
 
-#### `zed pull`
+#### `zed pull [plugin-id]`
 
 Pull latest changes for plugins
 
