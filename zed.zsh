@@ -108,7 +108,7 @@ function :zed_install() {
 
   if [[ "$ZED_CTX[from]" = "git" ]]; then
     if [[ $src_uri != *://* ]]; then
-      src_uri="https://github.com/${src_uri%.git}.git"
+      src_uri="https://${src_uri%.git}.git"
     fi
 
     command git -C "${plugin_dir:h}" clone --depth 1 --recursive --shallow-submodules "$src_uri" "${plugin_dir:t}"
