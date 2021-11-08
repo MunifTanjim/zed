@@ -65,7 +65,7 @@ function :zed_plugin_registry() {
       ZED_CTX=("${(@Q)${(@z)_zed_plugin_registry[$key]}}")
       ;;
     set)
-      key="$ZED_CTX[name]"
+      key="$ZED_CTX[id]"
       val="${(j: :)${(@qkv)ZED_CTX}}"
       _zed_plugin_registry[$key]="$val"
       ;;
@@ -113,6 +113,10 @@ function :zed_install() {
 }
 
 function :zed_update() {
+  if [[ $__zed_skip_update = true ]]; then
+    return 0
+  fi
+
   local plugin_dir="$ZED[DATA_DIR]/plugins/$ZED_CTX[name]"
 
   local name="$ZED_CTX[name]"
@@ -144,6 +148,12 @@ function :zed_update() {
 function :zed_install_or_update() {
   local plugin_dir="$ZED[DATA_DIR]/plugins/$ZED_CTX[name]"
 
+  if [[ "${ZED_CTX[src][1]}" = "/" ]] || [[ "${ZED_CTX[src][1]}" = "~" ]]; then
+    ZED_CTX[from]="file"
+  else
+    ZED_CTX[from]="git"
+  fi
+
   if [[ -d "$plugin_dir" ]]; then
     :zed_update
   else
@@ -154,11 +164,11 @@ function :zed_install_or_update() {
     return $?
   fi
 
-  pushd "$plugin_dir" > /dev/null
+  pushd "$plugin_dir$ZED_CTX[dir]" > /dev/null
 
   eval "$ZED_CTX[onpull]"
 
-  if [[ ! -f "$plugin_dir/$ZED_CTX[pick]" ]]; then
+  if [[ ! -f "$ZED_CTX[pick]" ]]; then
     return 1
   fi
 
@@ -174,17 +184,24 @@ function _zed_list() {
 }
 
 function _zed_pull() {
-  local -a names=($@)
+  local -a ids=($@)
 
-  if [[ ${#names[@]} -eq 0 ]]; then
-    names=($(_zed_list))
+  if [[ ${#ids[@]} -eq 0 ]]; then
+    ids=($(_zed_list))
   fi
 
-  local name
-  for name in ${names[@]}; do
-    :zed_plugin_registry get "$name"
+  local -A pulled_ids
+  local __zed_skip_update=false
+
+  local id
+  for id in ${ids[@]}; do
+    :zed_plugin_registry get "$id"
+
+    __zed_skip_update=$pulled_ids[$ZED_CTX[name]]
 
     :zed_install_or_update
+
+    pulled_ids[$ZED_CTX[name]]=true
   done
 }
 
@@ -199,12 +216,6 @@ function _zed_load() {
     shift
   done
 
-  if [[ "${ZED_CTX[src][1]}" = "/" ]] || [[ "${ZED_CTX[src][1]}" = "~" ]]; then
-    ZED_CTX[from]="file"
-  else
-    ZED_CTX[from]="git"
-  fi
-
   if [[ -z "$ZED_CTX[name]" ]]; then
     ZED_CTX[name]="${${ZED_CTX[src]:t}%.git}"
   fi
@@ -213,19 +224,23 @@ function _zed_load() {
     if [[ -z "$ZED_CTX[dir]" ]]; then
       ZED_CTX[pick]="$ZED_CTX[name].plugin.zsh"
     else
-      ZED_CTX[pick]="$ZED_CTX[dir]/${ZED_CTX[dir]:t}.plugin.zsh"
+      ZED_CTX[pick]="${ZED_CTX[dir]:t}.plugin.zsh"
     fi
   fi
+
+  ZED_CTX[dir]="${ZED_CTX[dir]:+/$ZED_CTX[dir]}"
+
+  ZED_CTX[id]="${ZED_CTX[name]}${ZED_CTX[dir]:+:::${ZED_CTX[dir]:t}}"
 
   :zed_plugin_registry set
 
   local plugin_dir="$ZED[DATA_DIR]/plugins/$ZED_CTX[name]"
 
-  if [[ ! -f "$plugin_dir/$ZED_CTX[pick]" ]]; then
+  if [[ ! -f "$plugin_dir$ZED_CTX[dir]/$ZED_CTX[pick]" ]]; then
     :zed_install_or_update
   fi
 
-  if [[ ! -f "$plugin_dir/$ZED_CTX[pick]" ]]; then
+  if [[ ! -f "$plugin_dir$ZED_CTX[dir]/$ZED_CTX[pick]" ]]; then
     __zed_log_err "failed to load plugin:"
     __zed_log_err "  $ZED_CTX[src] ${ZED_CTX[name]:+name:$ZED_CTX[name]}"
     return 1
@@ -238,13 +253,13 @@ function _zed_load() {
   fi
 
   __zed_compdef_intercept_on
-  pushd "$plugin_dir" > /dev/null
+  pushd "$plugin_dir$ZED_CTX[dir]" > /dev/null
   source "$ZED_CTX[pick]"
   eval "$ZED_CTX[onload]"
   popd > /dev/null
   __zed_compdef_intercept_off
 
-  ZED[plugin-$ZED_CTX[name]]=true
+  ZED[plugin-$ZED_CTX[id]]=true
 }
 
 function _zed_done() {
