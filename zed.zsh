@@ -155,15 +155,15 @@ function :zed_install_or_update() {
   fi
 
   pushd "$plugin_dir" > /dev/null
+
   eval "$ZED_CTX[onpull]"
-  popd > /dev/null
 
   if [[ ! -f "$plugin_dir/$ZED_CTX[pick]" ]]; then
     return 1
   fi
 
-  pushd "$plugin_dir" > /dev/null
   zcompile -U "$ZED_CTX[pick]"
+
   popd > /dev/null
 }
 
