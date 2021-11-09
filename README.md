@@ -101,12 +101,15 @@ Pull latest changes for plugins
 
 ## Alternatives
 
+_(In alphabetical order of repository names)_
+
 - [zsh-users/antigen](https://github.com/zsh-users/antigen)
 - [ohmyzsh/ohmyzsh](https://github.com/ohmyzsh/ohmyzsh)
 - [sorin-ionescu/prezto](https://github.com/sorin-ionescu/prezto)
 - [mattmc3/pz](https://github.com/mattmc3/pz)
 - [agkozak/zcomet](https://github.com/agkozak/zcomet)
 - [tarjoilija/zgen](https://github.com/tarjoilija/zgen)
+- [jandamm/zgenom](https://github.com/jandamm/zgenom)
 - [zimfw/zimfw](https://github.com/zimfw/zimfw)
 - [zplug/zplug](https://github.com/zplug/zplug)
 - [zpm-zsh/zpm](https://github.com/zpm-zsh/zpm)
