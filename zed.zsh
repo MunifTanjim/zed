@@ -1,5 +1,8 @@
 # vim: set filetype=zsh foldmethod=marker foldmarker=[[[,]]] :
 
+declare -gA ZED
+ZED[name]="${ZED[name]:-zed}"
+
 # logging [[[
 function __zed_log_err() {
   echo $@ >&2
@@ -268,7 +271,6 @@ function _zed_done() {
 }
 
 function _zed_init() {
-  declare -gA ZED
   declare -gA _zed_plugin_registry
   declare -ga ZED_COMPDEF_REPLAY
 
@@ -287,7 +289,7 @@ function _zed_init() {
   autoload -Uz compinit
 }
 
-function zed() {
+function $ZED[name]() {
   local cmd="$1"
   local REPLY
 

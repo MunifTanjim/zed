@@ -79,6 +79,29 @@ zed done
 
 ### Commands
 
+The main function is named `zed`.
+
+<details>
+
+<summary>You don't like that name?!</summary>
+
+In case you already have another function with the same name,
+for example: the [`zed` command line editor](https://github.com/zsh-users/zsh/blob/master/Functions/Misc/zed),
+just set the `ZED[name]` variable to something else before
+sourcing the `zed.zsh` file.
+
+```sh
+ZED[name]=zedi
+```
+
+Then `zed` will become `zedi`, and you can do:
+
+```sh
+zedi load "$HOME/darkside.sh"
+```
+
+</details>
+
 #### `zed init`
 
 Initialize
