@@ -108,7 +108,7 @@ function :zed_install() {
       cp "$src_uri" "$plugin_dir/$ZED_CTX[name].plugin.zsh"
     elif [[ -d "$src_uri" ]]; then
       mkdir -p "$plugin_dir"
-      cp -r "$src_uri/**" "$plugin_dir/"
+      cp -r $src_uri/** "$plugin_dir/"
     fi
   fi
 
@@ -141,7 +141,7 @@ function :zed_update() {
     if [[ -f "$src_uri" ]]; then
       cp "$src_uri" "$plugin_dir/$ZED_CTX[name].plugin.zsh"
     elif [[ -d "$src_uri" ]]; then
-      cp -r "$src_uri/**" "$plugin_dir/"
+      cp -r $src_uri/** "$plugin_dir/"
     fi
   fi
 
