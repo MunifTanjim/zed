@@ -175,7 +175,9 @@ function :zed_install_or_update() {
     return 1
   fi
 
-  zcompile -U "$ZED_CTX[pick]"
+  for file in ${(s: :)${ZED_CTX[compile]:-${ZED_CTX[pick]}}}; do
+    zcompile -U "$file"
+  done
 
   popd > /dev/null
 }
