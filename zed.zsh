@@ -76,96 +76,44 @@ function :zed_plugin_registry() {
 }
 # ]]]
 
-function :zed_install() {
+function :zed_install_or_update() {
   local plugin_dir="${ZED[DATA_DIR]}/plugins/${ZED_CTX[name]}"
-
-  if [[ ! -d "${plugin_dir:h}" ]]; then
-    mkdir -p "${plugin_dir:h}"
-  fi
-
   local name="${ZED_CTX[name]}"
-
-  __zed_log_info "${name} installing..."
-
   local src_uri="${ZED_CTX[src]}"
 
-  if [[ "${ZED_CTX[from]}" = "git" ]]; then
+  __zed_log_info "${name} pulling..."
+
+  if [[ "${ZED_CTX[src][1]}" = "/" ]] || [[ "${ZED_CTX[src][1]}" = "~" ]]; then
+    ZED_CTX[from]="file"
+
+    mkdir -p "${plugin_dir}"
+
+    if [[ -f "${src_uri}" ]]; then
+      cp "${src_uri}" "${plugin_dir}/${ZED_CTX[name]}.plugin.zsh"
+    elif [[ -d "${src_uri}" ]]; then
+      cp -r ${src_uri}/** "${plugin_dir}/"
+    fi
+  else
+    ZED_CTX[from]="git"
+
     if [[ ${src_uri} != *://* ]]; then
       src_uri="https://${src_uri%.git}.git"
     fi
 
-    command git -C "${plugin_dir:h}" clone --depth 1 --recursive --shallow-submodules "${src_uri}" "${plugin_dir:t}"
-
-    if [[ $? -ne 0 ]]; then
-      __zed_log_err "${name} install failed"
-      return 1
+    if [[ -d "${plugin_dir}" ]]; then
+      command git -C "${plugin_dir}" pull --quiet --recurse-submodules --depth 1 --rebase --autostash
+    else
+      mkdir -p "${plugin_dir:h}"
+      command git -C "${plugin_dir:h}" clone --depth 1 --recursive --shallow-submodules "${src_uri}" "${plugin_dir:t}"
     fi
-  fi
-
-  if [[ "${ZED_CTX[from]}" = "file" ]]; then
-    if [[ -f "${src_uri}" ]]; then
-      mkdir -p "${plugin_dir}"
-      cp "${src_uri}" "${plugin_dir}/${ZED_CTX[name]}.plugin.zsh"
-    elif [[ -d "${src_uri}" ]]; then
-      mkdir -p "${plugin_dir}"
-      cp -r ${src_uri}/** "${plugin_dir}/"
-    fi
-  fi
-
-  __zed_log_info "${name} installed"
-}
-
-function :zed_update() {
-  if [[ ${__zed_skip_update} = true ]]; then
-    return 0
-  fi
-
-  local plugin_dir="${ZED[DATA_DIR]}/plugins/${ZED_CTX[name]}"
-
-  local name="${ZED_CTX[name]}"
-
-  __zed_log_info "${name} updating..."
-
-  local src_uri="${ZED_CTX[src]}"
-
-  if [[ "${ZED_CTX[from]}" = "git" ]]; then
-    command git -C "${plugin_dir}" pull --quiet --recurse-submodules --depth 1 --rebase --autostash
-
-    if [[ $? -ne 0 ]]; then
-      __zed_log_err "${name} update failed"
-      return 1
-    fi
-  fi
-
-  if [[ "${ZED_CTX[from]}" = "file" ]]; then
-    if [[ -f "${src_uri}" ]]; then
-      cp "${src_uri}" "${plugin_dir}/${ZED_CTX[name]}.plugin.zsh"
-    elif [[ -d "${src_uri}" ]]; then
-      cp -r ${src_uri}/** "${plugin_dir}/"
-    fi
-  fi
-
-  __zed_log_info "${name} updated"
-}
-
-function :zed_install_or_update() {
-  local plugin_dir="${ZED[DATA_DIR]}/plugins/${ZED_CTX[name]}"
-
-  if [[ "${ZED_CTX[src][1]}" = "/" ]] || [[ "${ZED_CTX[src][1]}" = "~" ]]; then
-    ZED_CTX[from]="file"
-  else
-    ZED_CTX[from]="git"
-  fi
-
-  if [[ -d "${plugin_dir}" ]]; then
-    :zed_update
-  else
-    :zed_install
   fi
 
   if [[ $? -ne 0 ]]; then
-    return $?
+    __zed_log_err "${name} pull failed"
+    return 1
   fi
+
+  __zed_log_info "${name} pulled"
 
   pushd "${plugin_dir}${ZED_CTX[dir]}" > /dev/null
 
@@ -196,15 +144,14 @@ function _zed_pull() {
   fi
 
   local -A pulled_ids
-  local __zed_skip_update=false
 
   local id
   for id in ${ids[@]}; do
     :zed_plugin_registry get "${id}"
 
-    __zed_skip_update=${pulled_ids[${ZED_CTX[name]}]}
-
-    :zed_install_or_update
+    if [[ -z "${pulled_ids[${ZED_CTX[name]}]}" ]]; then
+      :zed_install_or_update
+    fi
 
     pulled_ids[${ZED_CTX[name]}]=true
   done
