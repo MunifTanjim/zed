@@ -2,6 +2,8 @@
 
 declare -gA ZED
 ZED[name]="${ZED[name]:-zed}"
+ZED[CACHE_DIR]="${ZED[CACHE_DIR]:-${XDG_CACHE_HOME:-${HOME}/.cache}/zsh/.zed}"
+ZED[DATA_DIR]="${ZED[DATA_DIR]:-${XDG_DATA_HOME:-${HOME}/.local/share}/zsh/.zed}"
 
 # logging [[[
 function __zed_log_err() {
@@ -222,14 +224,6 @@ function _zed_done() {
 function _zed_init() {
   declare -gA _zed_plugin_registry
   declare -ga ZED_COMPDEF_REPLAY
-
-  if [[ -z "${ZED[CACHE_DIR]}" ]]; then
-    ZED[CACHE_DIR]="${XDG_CACHE_HOME:-${HOME}/.cache}/zsh/.zed"
-  fi
-
-  if [[ -z "${ZED[DATA_DIR]}" ]]; then
-    ZED[DATA_DIR]="${XDG_DATA_HOME:-${HOME}/.local/share}/zsh/.zed"
-  fi
 
   if [[ ! -d "${ZED[CACHE_DIR]}" ]]; then
     mkdir -p "${ZED[CACHE_DIR]}"
