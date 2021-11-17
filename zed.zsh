@@ -18,6 +18,7 @@ function __zed_log_info() {
 
 # completion [[[
 function __zed_compinit() {
+  local zcompdump
   for zcompdump in ${ZED[CACHE_DIR]}/.zcompdump(N.mh+24); do
     compinit -d "${zcompdump}"
     if [[ ! -s "${zcompdump}.zwc" ]] || [[ "${zcompdump}" -nt "${zcompdump}.zwc" ]]; then
@@ -126,6 +127,7 @@ function :zed_install_or_update() {
     return 1
   fi
 
+  local file
   for file in ${(s: :)${ZED_CTX[compile]:-${ZED_CTX[pick]}}}; do
     zcompile -U "${(e)file}"
   done
