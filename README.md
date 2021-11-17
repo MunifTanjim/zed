@@ -122,6 +122,10 @@ List plugin-ids
 
 Pull latest changes for plugins
 
+#### `zed pull-self`
+
+Pull latest changes for zed itself
+
 ## Alternatives
 
 _(In alphabetical order of repository names)_

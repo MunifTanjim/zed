@@ -2,6 +2,7 @@
 
 declare -gA ZED
 ZED[name]="${ZED[name]:-zed}"
+ZED[self]="${0:A}"
 ZED[CACHE_DIR]="${ZED[CACHE_DIR]:-${XDG_CACHE_HOME:-${HOME}/.cache}/zsh/.zed}"
 ZED[DATA_DIR]="${ZED[DATA_DIR]:-${XDG_DATA_HOME:-${HOME}/.local/share}/zsh/.zed}"
 
@@ -157,6 +158,14 @@ function _zed_pull() {
 
     pulled_ids[${ZED_CTX[name]}]=true
   done
+}
+
+function _zed_pull-self() {
+  __zed_log_info "zed pulling..."
+  command git -C "${ZED[self]:h}" pull --quiet --recurse-submodules --depth 1 --rebase --autostash
+  __zed_log_info "zed pulled"
+
+  zcompile -U "${ZED[self]}"
 }
 
 function _zed_load() {
