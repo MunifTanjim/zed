@@ -119,7 +119,7 @@ function :zed_install_or_update() {
 
   __zed_log_info "${name} pulled"
 
-  pushd "${plugin_dir}${ZED_CTX[dir]}" > /dev/null
+  pushd -q "${plugin_dir}${ZED_CTX[dir]}"
 
   eval "${ZED_CTX[onpull]}"
 
@@ -132,7 +132,7 @@ function :zed_install_or_update() {
     zcompile -U "${(e)file}"
   done
 
-  popd > /dev/null
+  popd -q
 }
 
 function _zed_list() {
@@ -218,10 +218,10 @@ function _zed_load() {
   fi
 
   __zed_compdef_intercept_on
-  pushd "${plugin_dir}${ZED_CTX[dir]}" > /dev/null
+  pushd -q "${plugin_dir}${ZED_CTX[dir]}"
   source "${ZED_CTX[pick]}"
   eval "${ZED_CTX[onload]}"
-  popd > /dev/null
+  popd -q
   __zed_compdef_intercept_off
 
   ZED[plugin-${ZED_CTX[id]}]=true
