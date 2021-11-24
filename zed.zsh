@@ -105,7 +105,7 @@ function :zed_install_or_update() {
     fi
 
     if [[ -d "${plugin_dir}" ]]; then
-      command git -C "${plugin_dir}" pull --quiet --recurse-submodules --depth 1 --rebase --autostash
+      command git -C "${plugin_dir}" pull --quiet --recurse-submodules --rebase --autostash
     else
       mkdir -p "${plugin_dir:h}"
       command git -C "${plugin_dir:h}" clone --depth 1 --recursive --shallow-submodules "${src_uri}" "${plugin_dir:t}"
@@ -164,7 +164,7 @@ function _zed_pull() {
 
 function _zed_pull-self() {
   __zed_log_info "zed pulling..."
-  command git -C "${ZED[self]:h}" pull --quiet --recurse-submodules --depth 1 --rebase --autostash
+  command git -C "${ZED[self]:h}" pull --quiet --recurse-submodules --rebase --autostash
   __zed_log_info "zed pulled"
 
   zcompile -U "${ZED[self]}"
