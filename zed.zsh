@@ -218,10 +218,10 @@ function _zed_load() {
   fi
 
   __zed_compdef_intercept_on
-  pushd -q "${plugin_dir}${ZED_CTX[dir]}"
-  source "${ZED_CTX[pick]}"
-  eval "${ZED_CTX[onload]}"
-  popd -q
+  source "${plugin_dir}${ZED_CTX[dir]}/${ZED_CTX[pick]}"
+  if [[ -n "${ZED_CTX[onload]}" ]]; then
+    eval "pushd -q ${plugin_dir}${ZED_CTX[dir]} && ${ZED_CTX[onload]} && popd -q"
+  fi
   __zed_compdef_intercept_off
 
   ZED[plugin-${ZED_CTX[id]}]=true
