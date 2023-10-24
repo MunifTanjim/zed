@@ -17,15 +17,17 @@ function __zed_log_info() {
 # ]]]
 
 # completion [[[
+ZED[ZCOMPDUMP_PATH]="${ZED[ZCOMPDUMP_PATH]:-${ZDOTDIR:-$HOME}/.zcompdump}"
+
 function __zed_compinit() {
-  local zcompdump
-  for zcompdump in ${ZED[CACHE_DIR]}/.zcompdump(N.mh+24); do
-    compinit -d "${zcompdump}"
-    if [[ ! -s "${zcompdump}.zwc" ]] || [[ "${zcompdump}" -nt "${zcompdump}.zwc" ]]; then
-      zcompile "${zcompdump}"
+  if [[ -z ${ZED[ZCOMPDUMP_PATH]}(N.mh+24) ]] || [[ ! -e ${ZED[ZCOMPDUMP_PATH]} ]]; then
+    compinit -d "${ZED[ZCOMPDUMP_PATH]}"
+    if [[ ! -s "${ZED[ZCOMPDUMP_PATH]}.zwc" ]] || [[ "${ZED[ZCOMPDUMP_PATH]}" -nt "${ZED[ZCOMPDUMP_PATH]}.zwc" ]]; then
+      zcompile "${ZED[ZCOMPDUMP_PATH]}"
     fi
-  done
-  compinit -C -d "${ZED[CACHE_DIR]}/.zcompdump"
+  else
+    compinit -C -d "${ZED[ZCOMPDUMP_PATH]}"
+  fi
 }
 
 function __zed_compdef() {
