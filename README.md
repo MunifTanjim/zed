@@ -4,11 +4,16 @@ ZSH Plugin Manager. Yes, yet another one.
 
 ## Installation
 
-### Manual Installation
-
 ```sh
-mkdir -p ~/.local/share/zsh/.zed
-git clone https://github.com/MunifTanjim/zed.git ~/.local/share/zsh/.zed/self
+declare -A ZED
+ZED[CACHE_DIR]="${HOME}/.cache/zsh/.zed"
+ZED[DATA_DIR]="${HOME}/.local/share/zsh/.zed"
+
+if ! test -d "${ZED[DATA_DIR]}/self"; then
+  git clone --depth 1 https://github.com/MunifTanjim/zed.git "${ZED[DATA_DIR]}/self"
+fi
+
+source "${ZED[DATA_DIR]}/self/zed.zsh"
 ```
 
 ## Usage
@@ -18,12 +23,6 @@ You should load the plugins you want after running `zed init` and before running
 **Initialization**:
 
 ```sh
-declare -A ZED
-ZED[CACHE_DIR]="${HOME}/.cache/zsh/.zed"
-ZED[DATA_DIR]="${HOME}/.local/share/zsh/.zed"
-
-source "${ZED[DATA_DIR]}/self/zed.zsh"
-
 zed init
 ```
 
@@ -97,7 +96,7 @@ ZED[name]=zedi
 Then `zed` will become `zedi`, and you can do:
 
 ```sh
-zedi load "$HOME/darkside.sh"
+zedi load "${HOME}/darkside.sh"
 ```
 
 </details>
